@@ -1,7 +1,7 @@
 const Product = require("../models/product");
 
 exports.getProducts = async (req, res, next) => {
-  const products = await Product.findAll();
+  const products = await req.user.getProducts();
   res.render("shop/product-list", {
     prods: products,
     pageTitle: "All Products",
@@ -20,7 +20,7 @@ exports.getProduct = async (req, res, next) => {
 };
 
 exports.getIndex = async (req, res, next) => {
-  const products = await Product.findAll();
+  const products = await req.user.getProducts();
   res.render("shop/index", {
     prods: products,
     pageTitle: "Shop",
@@ -68,24 +68,22 @@ exports.postCartDeleteProduct = async (req, res, next) => {
 exports.postOrder = async (req, res, next) => {
   let cartProducts = await (await req.user.getCart()).getProducts();
   const order = await req.user.createOrder();
-  cartProducts.forEach(async (product) => {
-    await order.addProduct(product, {
-      through: { quantity: product.cartItem.quantity },
-    });
-  });
-  await (await req.user.getCart()).destroy();
-  const orders = await req.user.getOrders();
+  order.addProducts(
+    cartProducts.map((product) => {
+      product.orderItem = { quantity: product.cartItem.quantity };
+      return product;
+    })
+  );
+  await (await req.user.getCart()).setProducts(null);
+  res.redirect("/orders");
+};
+
+exports.getOrders = async (req, res, next) => {
+  const orders = await req.user.getOrders({ include: ["products"] });
   res.render("shop/orders", {
     path: "/orders",
     pageTitle: "Your Orders",
     orders: orders,
-  });
-};
-
-exports.getOrders = (req, res, next) => {
-  res.render("shop/orders", {
-    path: "/orders",
-    pageTitle: "Your Orders",
   });
 };
 

@@ -1,69 +1,69 @@
-const Product = require('../models/product')
+const Product = require("../models/product");
 
 exports.getAddProduct = (req, res, next) => {
-  res.render('admin/edit-product', {
-    pageTitle: 'Add Product',
-    path: '/admin/add-product',
-    editing: false
-  })
-}
+  res.render("admin/edit-product", {
+    pageTitle: "Add Product",
+    path: "/admin/add-product",
+    editing: false,
+  });
+};
 
 exports.postAddProduct = async (req, res, next) => {
-  const title = req.body.title
-  const imageUrl = req.body.imageUrl
-  const price = req.body.price
-  const description = req.body.description
+  const title = req.body.title;
+  const imageUrl = req.body.imageUrl;
+  const price = req.body.price;
+  const description = req.body.description;
   await req.user.createProduct({
     title: title,
     price: price,
     imageUrl: imageUrl,
-    description: description
-  })
-  res.redirect('/admin/products')
-}
+    description: description,
+  });
+  res.redirect("/admin/products");
+};
 
 exports.getEditProduct = async (req, res, next) => {
-  const editMode = req.query.edit
+  const editMode = req.query.edit;
   if (!editMode) {
-    return res.redirect('/')
+    return res.redirect("/");
   }
-  const prodId = req.params.productId
-  const product = await Product.findByPk(prodId)
-  res.render('admin/edit-product', {
-    pageTitle: 'Edit Product',
-    path: '/admin/edit-product',
+  const prodId = req.params.productId;
+  const product = await Product.findByPk(prodId);
+  res.render("admin/edit-product", {
+    pageTitle: "Edit Product",
+    path: "/admin/edit-product",
     editing: editMode,
-    product: product
-  })
-}
+    product: product,
+  });
+};
 
 exports.postEditProduct = async (req, res, next) => {
-  const prodId = req.body.productId
-  const updatedTitle = req.body.title
-  const updatedPrice = req.body.price
-  const updatedImageUrl = req.body.imageUrl
-  const updatedDesc = req.body.description
-  const product = await Product.findByPk(prodId)
+  const prodId = req.body.productId;
+  const updatedTitle = req.body.title;
+  const updatedPrice = req.body.price;
+  const updatedImageUrl = req.body.imageUrl;
+  const updatedDesc = req.body.description;
+  const product = await Product.findByPk(prodId);
 
-  product.title = updatedTitle
-  product.price = updatedPrice
-  product.description = updatedDesc
-  product.imageUrl = updatedImageUrl
-  await product.save()
+  product.title = updatedTitle;
+  product.price = updatedPrice;
+  product.description = updatedDesc;
+  product.imageUrl = updatedImageUrl;
+  await product.save();
 
-  res.redirect('/admin/products')
-}
+  res.redirect("/admin/products");
+};
 exports.getProducts = async (req, res, next) => {
-  const products = await req.user.getProducts()
-  res.render('admin/products', {
+  const products = await req.user.getProducts();
+  res.render("admin/products", {
     prods: products,
-    pageTitle: 'Admin Products',
-    path: '/admin/products'
-  })
-}
+    pageTitle: "Admin Products",
+    path: "/admin/products",
+  });
+};
 
 exports.postDeleteProduct = async (req, res, next) => {
-  const prodId = req.body.productId
-  await Product.destroy({ where: { id: prodId } })
-  res.redirect('back')
-}
+  const prodId = req.body.productId;
+  await Product.destroy({ where: { id: prodId } });
+  res.redirect("back");
+};
